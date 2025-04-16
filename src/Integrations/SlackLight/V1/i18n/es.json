@@ -1,0 +1,117 @@
+{
+    "other": {
+        "multipleContactsFound": "Múltiples contactos encontrados:",
+        "noContactFound": "Contacto desconocido",
+        "scenarioPlaceHolder_": "*Escenario*: :scenarioName"
+    },
+    "inbound": {
+        "incoming": {
+            "title": "Llamada entrante de :contactHeader a *(:toNumberInE164)*",
+            "body": "{\"color\": \"ffe699\", \"icon\": \"call-in\"}"
+        },
+        "incall": {
+            "title": "",
+            "body": ""
+        },
+        "missed": {
+            "title": "Chiamata persa da :contactHeader a *(:toNumberInE164)*",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-missed\", \"btnCall\": \"Volver a llamar\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}}"
+        },
+        "voicemail": {
+            "title": "Nuevo mensaje de :contactHeader a *(:toNumberInE164)*",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-message\", \"btnCall\": \"Volver a llamar\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Llamada entrante de :contactHeader a *(:toNumberInE164)*",
+            "body": "{\"color\": \"#00ddd0\", \"icon\": \"call-in\", \"btnCall\": \"Volver a llamar\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"answeredByTitle\": \"Contestado por\", \"answeredByValue\": \":toName\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "outbound": {
+        "incall": {
+            "title": "Llamada saliente a :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}}"
+        },
+        "missed": {
+            "title": "Llamada perdida a :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}}"
+        },
+        "voicemail": {
+            "title": "Nuevo mensaje para :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Llamada saliente a :contactHeader",
+            "body": "{\"color\": \"#037dfc\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "inboundIVR": {
+        "incoming": {
+            "title": "Llamada entrante de :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-in\", \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "incall": {
+            "title": "Llamada entrante descolgada, de :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-in\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "missed": {
+            "title": "Llamada perdida de :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-missed\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Volver a llamar\", \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\"}"
+        },
+        "voicemail": {
+            "title": "Nuevo mensaje de :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-message\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Volver a llamar\", \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Llamada entrante de :contactHeader",
+            "body": "{\"color\": \"#00ddd0\", \"icon\": \"call-in\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Volver a llamar\", \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"answeredByTitle\": \"Contestado por\", \"answeredByValue\": \":toName\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "outboundIVR": {
+        "incall": {
+            "title": "Nueva llamada a :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "missed": {
+            "title": "Llamada perdida a :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "voicemail": {
+            "title": "Nuevo mensaje para :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Llamada saliente a :contactHeader",
+            "body": "{\"color\": \"#037dfc\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Etiquetas: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notas:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnListen\": \"Escuche\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcripción\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Resumen:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Próximos pasos:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "smsEventText": {
+        "IN": {
+            "EXTERNAL": {
+                "title": "Nuevo sms de :contactoEncabezado",
+                "body": "{\"color\": \"#00ddd0\", \"message\": {\"title\": \"Mensaje:\", \"value\": \":message\"}}"
+            },
+            "COLLABORATIVE": {
+                "title": "Nuevo sms de :contactoEncabezado",
+                "body": "{\"color\": \"#00ddd0\", \"message\": {\"title\": \"Mensaje:\", \"value\": \":message\"}, \"ivrInfos\": \"*Estándar*: :toIvrName\"}"
+            },
+            "global": {
+                "noContactFound": "Contacto desconocido",
+                "multipleContactsFound": "Múltiples contactos encontrados:"
+            }
+        },
+        "OUT": {
+            "EXTERNAL": {
+                "title": "Sms enviado a :contactoCabecera",
+                "body": "{\"color\": \"#037dfc\", \"message\": {\"title\": \"Mensaje:\", \"value\": \":message\"}}"
+            },
+            "COLLABORATIVE": {
+                "title": "Sms enviado a :contactoCabecera",
+                "body": "{\"color\": \"#037dfc\", \"message\": {\"title\": \"Mensaje:\", \"value\": \":message\"}, \"ivrInfos\": \"*Estándar*: :fromIvrName\"}"
+            },
+            "global": {
+                "noContactFound": "Contacto desconocido",
+                "multipleContactsFound": "Múltiples contactos encontrados:"
+            }
+        }
+    }
+}

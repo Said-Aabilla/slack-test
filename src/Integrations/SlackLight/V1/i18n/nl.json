@@ -1,0 +1,117 @@
+{
+    "other": {
+        "multipleContactsFound": "Meerdere contacten gevonden:",
+        "noContactFound": "Onbekend contact",
+        "scenarioPlaceHolder_": "*Scenario*: :scenarioName"
+    },
+    "inbound": {
+        "incoming": {
+            "title": "Inkomend gesprek van :contactHeader naar *(:toNumberInE164)*",
+            "body": "{\"color\": \"ffe699\", \"icon\": \"call-in\"}"
+        },
+        "incall": {
+            "title": "",
+            "body": ""
+        },
+        "missed": {
+            "title": "Gemiste oproep van :contactHeader naar *(:toNumberInE164)*",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-missed\", \"btnCall\": \"Terugbellen\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}}"
+        },
+        "voicemail": {
+            "title": "Nieuw bericht van :contactHeader naar *(:toNumberInE164)*",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-message\", \"btnCall\": \"Terugbellen\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Inkomend gesprek van :contactHeader naar *(:toNumberInE164)*",
+            "body": "{\"color\": \"#00ddd0\", \"icon\": \"call-in\", \"btnCall\": \"Terugbellen\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"answeredByTitle\": \"Beantwoord door\", \"answeredByValue\": \":toName\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "outbound": {
+        "incall": {
+            "title": "Uitgaande oproep naar :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}}"
+        },
+        "missed": {
+            "title": "Gemiste oproep naar :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}}"
+        },
+        "voicemail": {
+            "title": "Nieuw bericht naar :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Uitgaande oproep naar :contactHeader",
+            "body": "{\"color\": \"#037dfc\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "inboundIVR": {
+        "incoming": {
+            "title": "Inkomende oproep van :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-in\", \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "incall": {
+            "title": "Inkomend gesprek aangenomen, van :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-in\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "missed": {
+            "title": "Gemiste oproep van :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-missed\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Terugbellen\", \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\"}"
+        },
+        "voicemail": {
+            "title": "Nieuw bericht van :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-message\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Terugbellen\", \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Inkomende oproep van :contactHeader",
+            "body": "{\"color\": \"#00ddd0\", \"icon\": \"call-in\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Terugbellen\", \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"answeredByTitle\": \"Beantwoord door\", \"answeredByValue\": \":toName\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "outboundIVR": {
+        "incall": {
+            "title": "Nieuwe oproep voor :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "missed": {
+            "title": "Gemiste oproep naar :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "voicemail": {
+            "title": "Nieuw bericht naar :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Uitgaande oproep naar :contactHeader",
+            "body": "{\"color\": \"#037dfc\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags: \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Opmerkingen:\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standaard*: :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnListen\": \"Luister naar\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcriptie\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Samenvatting:\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Volgende stappen:\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "smsEventText": {
+        "IN": {
+            "EXTERNAL": {
+                "title": "Nieuwe sms van :contactHeader",
+                "body": "{\"color\": \"#00ddd0\", \"message\": {\"title\": \"Bericht:\", \"value\": \":message\"}}"
+            },
+            "COLLABORATIVE": {
+                "title": "Nieuwe sms van :contactHeader",
+                "body": "{\"color\": \"#00ddd0\", \"message\": {\"title\": \"Bericht:\", \"value\": \":message\"}, \"ivrInfos\": \"*Standard*: :toIvrName\"}"
+            },
+            "global": {
+                "noContactFound": "Onbekend contact",
+                "multipleContactsFound": "Meerdere contacten gevonden:"
+            }
+        },
+        "OUT": {
+            "EXTERNAL": {
+                "title": "Sms verzonden naar :contactHeader",
+                "body": "{\"color\": \"#037dfc\", \"message\": {\"title\": \"Bericht:\", \"value\": \":message\"}}"
+            },
+            "COLLABORATIVE": {
+                "title": "Sms verzonden naar :contactHeader",
+                "body": "{\"color\": \"#037dfc\", \"message\": {\"title\": \"Bericht:\", \"value\": \":message\"}, \"ivrInfos\": \"*Standard*: :fromIvrName\"}"
+            },
+            "global": {
+                "noContactFound": "Onbekend contact",
+                "multipleContactsFound": "Meerdere contacten gevonden:"
+            }
+        }
+    }
+}

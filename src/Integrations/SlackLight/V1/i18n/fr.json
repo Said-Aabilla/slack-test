@@ -1,0 +1,117 @@
+{
+    "other": {
+        "multipleContactsFound": "Plusieurs contacts trouvés :",
+        "noContactFound": "Contact inconnu",
+        "scenarioPlaceHolder_": "*Scénario* : :scenarioName"
+    },
+    "inbound": {
+        "incoming": {
+            "title": "Appel entrant de :contactHeader vers *(:toNumberInE164)*",
+            "body": "{\"color\": \"ffe699\", \"icon\": \"call-in\"}"
+        },
+        "incall": {
+            "title": "",
+            "body": ""
+        },
+        "missed": {
+            "title": "Appel manqué de :contactHeader vers *(:toNumberInE164)*",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-missed\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"btnCall\": \"Rappeler\"}"
+        },
+        "voicemail": {
+            "title": "Nouveau message de :contactHeader vers *(:toNumberInE164)*",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-message\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"btnCall\": \"Rappeler\", \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Appel entrant de :contactHeader vers *(:toNumberInE164)*",
+            "body": "{\"color\": \"#00ddd0\", \"icon\": \"call-in\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"btnCall\": \"Rappeler\", \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\", \"answeredByTitle\": \"Traité par\", \"answeredByValue\": \":toName\", \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "outbound": {
+        "incall": {
+            "title": "Appel sortant vers :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}}"
+        },
+        "missed": {
+            "title": "Appel manqué vers :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}}"
+        },
+        "voicemail": {
+            "title": "Appel manqué vers :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Appel sortant vers :contactHeader",
+            "body": "{\"color\": \"#037dfc\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "inboundIVR": {
+        "incoming": {
+            "title": "Appel entrant de :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-in\", \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "incall": {
+            "title": "Appel entrant décroché, de :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-in\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "missed": {
+            "title": "Appel manqué de :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-missed\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Rappeler\", \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\"}"
+        },
+        "voicemail": {
+            "title": "Appel manqué de :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-message\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Rappeler\", \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\", \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Appel entrant de :contactHeader",
+            "body": "{\"color\": \"#00ddd0\", \"icon\": \"call-in\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnCall\": \"Rappeler\", \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\", \"answeredByTitle\": \"Traité par\", \"answeredByValue\": \":toName\", \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "outboundIVR": {
+        "incall": {
+            "title": "Appel sortant vers :contactHeader",
+            "body": "{\"color\": \"#ffe699\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "missed": {
+            "title": "Appel manqué vers :contactHeader",
+            "body": "{\"color\": \"#f04e4f\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\"}"
+        },
+        "voicemail": {
+            "title": "Appel manqué vers :contactHeader",
+            "body": "{\"color\": \"#ffb12a\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\"}, \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        },
+        "hangup": {
+            "title": "Appel sortant vers :contactHeader",
+            "body": "{\"color\": \"#037dfc\", \"icon\": \"call-out\", \"tags\": {\"title\": \"Tags : \", \"value\": \":tags\"}, \"notes\": {\"title\": \"Notes :\", \"value\": \":comment\"}, \"ivrInfos\": \"*Standard* : :ivrName (:ivrNumberInE164)\n:scenarioPlaceHolder_\", \"btnListen\": \"Écouter\", \"audioFileLink\": \":audioFileLink\"}, \"empower\": {\"transcriptTtitle\": \"Transcription\", \"transcriptLink\": \":empower_call_path\", \"summaryTitle\": \"Résumé :\", \"summaryText\": \":summary\", \"nextStepsTitle\": \"Prochaines étapes :\", \"nextStepsText\": \":follow_up_actions\"}}"
+        }
+    },
+    "smsEventText": {
+        "IN": {
+            "EXTERNAL": {
+                "title": "Nouveau sms de :contactHeader",
+                "body": "{\"color\": \"#00ddd0\", \"message\": {\"title\": \"Message :\", \"value\": \":message\"}}"
+            },
+            "COLLABORATIVE": {
+                "title": "Nouveau sms de :contactHeader",
+                "body": "{\"color\": \"#00ddd0\", \"message\": {\"title\": \"Message :\", \"value\": \":message\"}, \"ivrInfos\": \"*Standard* : :toIvrName\"}"
+            },
+            "global": {
+                "noContactFound": "Contact inconnu",
+                "multipleContactsFound": "Plusieurs contacts trouvés :"
+            }
+        },
+        "OUT": {
+            "EXTERNAL": {
+                "title": "Sms envoyé vers :contactHeader",
+                "body": "{\"color\": \"#037dfc\", \"message\": {\"title\": \"Message :\", \"value\": \":message\"}}"
+            },
+            "COLLABORATIVE": {
+                "title": "Sms envoyé vers :contactHeader",
+                "body": "{\"color\": \"#037dfc\", \"message\": {\"title\": \"Message :\", \"value\": \":message\"}, \"ivrInfos\": \"*Standard* : :fromIvrName\"}"
+            },
+            "global": {
+                "noContactFound": "Contact inconnu",
+                "multipleContactsFound": "Plusieurs contacts trouvés :"
+            }
+        }
+    }
+}
