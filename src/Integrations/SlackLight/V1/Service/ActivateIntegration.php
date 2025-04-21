@@ -29,7 +29,8 @@ class ActivateIntegration extends AbstractActivateIntegration
      */
     public function process(array $requestBody, array $queryParams, int $teamId, ?int $userId = null): Integration
     {
-        $authCode     = trim($requestBody['code'] ?? '');
+
+        $authCode     = $requestBody['code'];
 
         if (empty($authCode)) {
             throw new InvalidArgumentException('Empty auth code', 400);
@@ -80,7 +81,10 @@ class ActivateIntegration extends AbstractActivateIntegration
         }
 
         $currentUser = $this->userRepository->getUserDetailsById($userId);
-        $defaultConfig = IntegrationCreation::getDefaultLightConfiguration();
+        $defaultConfig = IntegrationCreation::getDefaultConfiguration();
+
+        // Remove unused params
+        unset($defaultConfig['contactCreationCondition']);
 
         // Ne pas enregistrer callEventTexts en base, à fin d'utiliser les fichiers i18n de Slack
         $defaultConfig['callEventTexts'] = [];

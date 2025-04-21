@@ -18,6 +18,7 @@ class SlackOAuth2Provider
     private IntegrationLoggerInterface $logger;
     private HttpClient $httpClient;
     private SettingsInterface $settings;
+
     public function __construct(
         HttpClient                 $httpClient,
         IntegrationLoggerInterface $logger,
@@ -39,24 +40,27 @@ class SlackOAuth2Provider
 
 
         $data = [
-            'client_id'     => $clientId,
+            'client_id' => $clientId,
             'client_secret' => $clientSecret,
-            'code'          => $authCode,
-            'redirect_uri'  => $redirectUri
+            'code' => $authCode,
+            'redirect_uri' => $redirectUri
         ];
 
-        return $this->handleTokenRequest($integration, $data, ['client_secret']);
+        // Encode data as form-urlencoded
+        $encodedData = http_build_query($data);
+
+        return $this->handleTokenRequest($integration, $encodedData, ['client_secret']);
     }
 
-    private function handleTokenRequest(Integration $integration, array $data, array $sensitiveFields): ?array
+    private function handleTokenRequest(Integration $integration, string $encodedData, array $sensitiveFields): ?array
     {
         try {
             $httpCode = 0;
             $response = $this->httpClient->request(
                 'POST',
-                self::SLACK_OAUTH_URL ,
-                $data,
-                ['Content-Type: application/json'],
+                self::SLACK_OAUTH_URL,
+                $encodedData,
+                ['Content-Type: application/x-www-form-urlencoded'],
                 $httpCode,
                 $sensitiveFields,
                 $integration->getIntegrationName(),
@@ -64,11 +68,15 @@ class SlackOAuth2Provider
             );
 
             if (!$this->isValidResponse($httpCode, $response)) {
-                $this->logError($integration,'Invalid token response', $response);
+                $this->logger->debug($integration->getIntegrationName() . ': ' . 'Invalid token response', [
+                    'response' => $response,
+                    'integration' => $integration->getIntegrationName()
+                ]);
+
                 return null;
             }
 
-            $this->updateIntegrationTokens($integration, $response);
+            $integration->setToken($response['access_token']);
 
             return $response;
 
@@ -88,16 +96,4 @@ class SlackOAuth2Provider
             !empty($response['access_token']);
     }
 
-    private function logError(Integration $integration,string $message, array $context): void
-    {
-        $this->logger->debug($integration->getIntegrationName().': ' . $message, [
-            'response' => $context,
-            'integration' => $integration->getIntegrationName()
-        ]);
-    }
-
-    private function updateIntegrationTokens(Integration $integration, array $response): void
-    {
-        $integration->setAccessToken($response['access_token']);
-    }
 }

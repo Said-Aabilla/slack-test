@@ -16,12 +16,6 @@
 
 use App\Intrastructure\Persistence\CommandQueryPDO;
 
-// slack pour quicktalk
-define('SLACK_QUICKTALK_REDIRECT_URI', $container['settings']['integrations']['slack_quicktalk']['redirect_url_local']);
-define('SLACK_QUICKTALK_CLIENT_ID', $container['settings']['integrations']['slack_quicktalk']['client_id']);
-define('SLACK_QUICKTALK_CLIENT_SECRET', $container['settings']['integrations']['slack_quicktalk']['client_secret']);
-
-// slack pour ro
 define('SLACK_REDIRECT_URI', $container['settings']['integrations']['slack']['redirect_url']);
 define('SLACK_CLIENT_ID', $container['settings']['integrations']['slack']['client_id']);
 define('SLACK_CLIENT_SECRET', $container['settings']['integrations']['slack']['client_secret']);
@@ -105,10 +99,6 @@ $slackDefaultServiceData['callEventTexts'] = [];
 
 $integrationDataArray = getIntegrationData($pdoHandler, 'SLACK', $currentUser['team_id']);
 
-if(empty($integrationDataArray)){
-    $integrationDataArray = getIntegrationData($pdoHandler, 'SLACK_QUICKTALK', $currentUser['team_id']);
-}
-
 if (!empty($integrationDataArray)) {
     $integrationData = current($integrationDataArray);
     $serviceData = json_decode($integrationData['service_data'], true);
@@ -128,26 +118,12 @@ if ($httpMethod == 'GET' && isset($_GET['error'])) {
 
 //region Nouvelle connexion Slack via OAuth2
 if ('GET' === $httpMethod && isset($_GET['code'])) {
-
-    $is_slack_quicktalk = isset($_GET['callback']) && $_GET['callback']='slack_quicktalk';
-
-    if ($is_slack_quicktalk){
-        $currentCrmName = 'SLACK_QUICKTALK';
-        $serviceData['showNationalFormat'] = true;
-        $serviceData['showIvrScenario'] = true;
-        $serviceData['showCallSummaryRingover'] = true;
-        $serviceData['empower'] = true;
-        $serviceData['channels'] = [];
-        unset($serviceData['ringover_user_to_external']);
-        unset($serviceData['createTasksFromNextSteps']);
-    }
-
     //region Demande du token d'accès avec du code d'auth
     $data = [
-        'client_id'     => $is_slack_quicktalk ? SLACK_QUICKTALK_CLIENT_ID : SLACK_CLIENT_ID,
-        'client_secret' => $is_slack_quicktalk ? SLACK_QUICKTALK_CLIENT_SECRET : SLACK_CLIENT_SECRET,
+        'client_id'     => SLACK_CLIENT_ID,
+        'client_secret' => SLACK_CLIENT_SECRET,
         'code'          => $_GET['code'],
-        'redirect_uri'  => $is_slack_quicktalk ? SLACK_QUICKTALK_REDIRECT_URI : SLACK_REDIRECT_URI
+        'redirect_uri'  => SLACK_REDIRECT_URI
     ];
     $encodedParams = http_build_query($data);
     $options = [
@@ -167,7 +143,7 @@ if ('GET' === $httpMethod && isset($_GET['code'])) {
     // Erreur dans la réponse.
     if (!$response || !$responseArray['ok']) {
         $logger->error(
-            $currentCrmName.' :: Impossible de récupérer le token',
+            'SLACK :: Impossible de récupérer le token',
             [
                 'response' => $http_response_header,
                 'error'    => $responseArray['error'] ?? $response,
@@ -194,35 +170,31 @@ if ('GET' === $httpMethod && isset($_GET['code'])) {
          * - Otherwise, insert new.
          */
         if (isset($integrationData)) {
-            updateServiceDataSlack($pdoHandler, $integrationData['id'], $currentCrmName, $accessToken, $serviceData);
+            updateServiceDataSlack($pdoHandler, $integrationData['id'], 'SLACK', $accessToken, $serviceData);
             $pdoHandler->commit();
 
-            // Auto sync ringover - slack user map (if not quicktalk)
-            if(!$is_slack_quicktalk){
-                syncRingoverSlackUsers(
-                    $pdoHandler, $currentUser['team_id'], $integrationData['id'],
-                    $accessToken,
-                    $serviceData,
-                    $logger
-                );
-            }
+            // Auto sync ringover - slack user map
+            syncRingoverSlackUsers(
+                $pdoHandler, $currentUser['team_id'], $integrationData['id'],
+                $accessToken,
+                $serviceData,
+                $logger
+            );
 
-            $logger->debug($currentCrmName.' :: Intégration MAJ.');
+            $logger->debug('SLACK :: Intégration MAJ.');
             http_response_code(200);
             echo json_encode(['oauth2TokenId' => $integrationData['id']]);
         } else {
-            addIntegrationSlack($pdoHandler, $accessToken, $currentCrmName, $serviceData, $currentUser['team_id']);
+            addIntegrationSlack($pdoHandler, $accessToken, 'SLACK', $serviceData, $currentUser['team_id']);
             $oauth2TokenId = $pdoHandler->lastInsertId();
             $pdoHandler->commit();
 
-            // Auto sync ringover - slack user map (if not quicktalk)
-            if(!$is_slack_quicktalk){
-                syncRingoverSlackUsers($pdoHandler, $currentUser['team_id'], $oauth2TokenId, $accessToken, $serviceData,
-                    $logger);
-            }
+            // Auto sync ringover - slack user map
+            syncRingoverSlackUsers($pdoHandler, $currentUser['team_id'], $oauth2TokenId, $accessToken, $serviceData,
+                $logger);
 
             $logger->debug(
-                $currentCrmName.' :: Nouvelle intégration enregistrée.',
+                'SLACK :: Nouvelle intégration enregistrée.',
                 ['teamId' => $currentUser['team_id']]
             );
             http_response_code(201);
@@ -231,7 +203,7 @@ if ('GET' === $httpMethod && isset($_GET['code'])) {
     } catch (Exception $e) {
         $pdoHandler->rollBack();
         $logger->error(
-            $currentCrmName.' :: Enregistrement impossible',
+            'SLACK :: Enregistrement impossible',
             [
                 'error'  => $e->getMessage(),
                 'teamId' => $currentUser['team_id']
@@ -250,7 +222,6 @@ if (!isset($integrationData)) {
 
 //region Supprimer integration
 if ('DELETE' === $httpMethod) {
-    $crmName = strtoupper(array_key_first($_COMMAND));
     try {
         $pdoHandler->beginTransaction();
         deleteCrmToken($pdoHandler, $integrationData['id']);
@@ -259,14 +230,14 @@ if ('DELETE' === $httpMethod) {
     } catch (Exception $e) {
         $pdoHandler->rollBack();
         $logger->error(
-            $crmName . ' :: Erreur suppression',
+            'SLACK :: Erreur suppression',
             [
                 'error'  => $e->getMessage(),
                 'teamId' => $currentUser['team_id']
             ]
         );
     }
-    $logger->debug($crmName . ' :: intégration supprimée', ['teamId' => $currentUser['team_id']]);
+    $logger->debug('SLACK :: intégration supprimée', ['teamId' => $currentUser['team_id']]);
     exit();
 }
 //endregion
@@ -417,57 +388,6 @@ if ('POST' === $httpMethod && 'config' === $_COMMAND['slack']) {
 }
 //endregion
 
-
-//region Modification de la configuration de SLACK_QUICKTALK
-if ('POST' === $httpMethod &&  'config' === $_COMMAND['slack_quicktalk']) {
-
-
-    if (isset($requestBody['languageCode']) && in_array($requestBody['languageCode'], \App\i18n\Translator::VALID_LANGUAGES)) {
-        $serviceData['languageCode'] = $requestBody['languageCode'];
-    }
-
-    if (isset($requestBody['enabled']) && in_array($requestBody['enabled'], [true, false])) {
-        $serviceData['enabled'] = $requestBody['enabled'];
-    }
-
-    if (isset($requestBody['showIvrScenario']) && in_array($requestBody['showIvrScenario'], [true, false])) {
-        $serviceData['showIvrScenario'] = $requestBody['showIvrScenario'];
-    }
-
-    if (isset($requestBody['showTagsNotes']) && in_array($requestBody['showTagsNotes'], [true, false])) {
-        $serviceData['showTagsNotes'] = $requestBody['showTagsNotes'];
-    }
-
-    if (isset($requestBody['channels'])) {
-        $serviceData['channels'] = $requestBody['channels'];
-    }
-
-    try {
-        $pdoHandler->beginTransaction();
-        updateServiceDataSlack(
-            $pdoHandler,
-            $integrationData['id'],
-            "SLACK_QUICKTALK",
-            $integrationData['access_token'],
-            $serviceData
-        );
-        $pdoHandler->commit();
-
-        $logger->debug(
-            'SLACK_QUICKTALK :: Configuration est modifiée avec succès.',
-            ['teamId' => $currentUser['team_id']]
-        );
-        http_response_code(200);
-    } catch (Exception $e) {
-        $pdoHandler->rollBack();
-        $logger->error('SLACK_QUICKTALK :: Erreur MAJ :: ' . $e->getMessage());
-        http_response_code(500);
-        exit();
-    }
-}
-//endregion
-
-
 //region Functions
 /**
  * @return void
@@ -556,7 +476,7 @@ function syncRingoverSlackUsers(
     int $integrationId,
     string $accessToken,
     array $serviceData,
-    $logger
+                    $logger
 ): array {
     try {
         // Get auto-mapping user list

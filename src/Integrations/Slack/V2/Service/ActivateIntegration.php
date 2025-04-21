@@ -88,7 +88,7 @@ class ActivateIntegration extends AbstractActivateIntegration
         // Remove unused params
         unset($defaultConfig['contactCreationCondition']);
 
-        // Ne pas enregistre callEventTexts en base, à fin d'utiliser les fichiers i18n de Slack
+        // Ne pas enregistrer callEventTexts en base, à fin d'utiliser les fichiers i18n de Slack
         $defaultConfig['callEventTexts'] = [];
 
 
@@ -127,7 +127,7 @@ class ActivateIntegration extends AbstractActivateIntegration
             // Get auto-mapping user list using the Slack service
             $result = $this->integrationService->autoMapRingoverSlackUsers(
                 $teamId,
-                $this->integration->getAccessToken(),
+                $this->integration,
                 $userMapList
             );
 

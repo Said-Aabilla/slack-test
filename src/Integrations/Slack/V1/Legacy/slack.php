@@ -173,8 +173,7 @@ function processCallEventForSlack(CommandQueryPDO $pdoHandler, Call $callEntity,
                 $contactManager,
                 intval($callEntity->firstRingoverUser['team_id']),
                 intval($userId),
-                $callEntity->e164CustomerNumber,
-                'SLACK'
+                $callEntity->e164CustomerNumber
             );
 
             try {
@@ -201,8 +200,7 @@ function processCallEventForSlack(CommandQueryPDO $pdoHandler, Call $callEntity,
                 $callEntity,
                 $slackTokenInfo->accessToken,
                 $channel,
-                $formattedMsg,
-                'SLACK'
+                $formattedMsg
             );
         } catch (Exception $e) {
             // Process message failed
@@ -212,122 +210,6 @@ function processCallEventForSlack(CommandQueryPDO $pdoHandler, Call $callEntity,
         }
     }
 
-    return true;
-}
-
-function processCallEventForSlackQuickTalk(CommandQueryPDO $pdoHandler, Call $callEntity, ContactManager $contactManager): bool
-{
-    /** @var UserTokenInfos $slackTokenInfo */
-    $slackTokenInfo = current($callEntity->integrations['SLACK_QUICKTALK']);
-    $slackServiceData = json_decode(json_encode($slackTokenInfo->serviceData), true);
-
-    if (isset($slackServiceData['enabled']) && !$slackServiceData['enabled']) {
-        return false;
-    }
-
-    if (
-        !callFilterV2($callEntity, $slackServiceData, [
-            CallStatus::DIALED,
-            CallStatus::INCALL,
-            CallStatus::MISSED,
-            CallStatus::HANGUP
-        ])
-    ) {
-        return false;
-    }
-
-    if (
-        CallStatus::MISSED === $callEntity->status
-        && $callEntity->eventName === 'PERMANENT_TRANSFER_GROUP_CALL_IN'
-    ) {
-        // Log
-        integrationLog('PERMANENT_TRANSFER_GROUP_CALL_IN');
-        return false;
-    }
-
-    if (
-        CallStatus::MISSED === $callEntity->status
-        && $callEntity->eventName === 'NOANSWER_TRANSFER_GROUP_CALL_IN'
-    ) {
-        // Log
-        integrationLog('NOANSWER_TRANSFER_GROUP_CALL_IN');
-        return false;
-    }
-
-
-    #region Texte
-    // Format général de texte (this function create the call event text: [title, body, transcript, scenarion...)
-    //change the folder name to use different texts
-    $initialCallEventText = createCallEventTextV2($callEntity, $slackServiceData, [], false, 'SlackQuicktalk');
-    //$initialCallEventText['body']= json_encode($initialCallEventText['body']);
-    // Textes du callEvent sont vides
-    if (empty($initialCallEventText['title']) && empty($initialCallEventText['body'])) {
-        // Log
-        integrationLog(
-            'STOP_PROCESSING',
-            'SLACK_QUICKTALK CallEvent text is empty',
-            ['status' => $callEntity->status]
-        );
-
-        return false;
-    }
-
-    // Envoyer la notif dans le channel prédéfini
-    if (isset($slackServiceData['channels']) && !empty($slackServiceData['channels'])) {
-        // [first_user => configured_channel]
-        $userId = $callEntity->firstRingoverUser['id'];
-        $channel = '';
-        foreach($slackServiceData['channels'] as $slack_number_channel){
-            if($slack_number_channel['phone_number'] == $callEntity->ringoverNumber){
-                $channel = $slack_number_channel['channel_id'];
-                break;
-            }
-        }
-
-        // Générer le message avec le nouvel format de texte
-        if (!isset($formattedMsg)) {
-            $contactInfos = getContactsForSlack(
-                $contactManager,
-                intval($callEntity->firstRingoverUser['team_id']),
-                intval($userId),
-                $callEntity->e164CustomerNumber,
-                'SLACK_QUICKTALK'
-            );
-
-            try {
-                $formattedMsg = createSlackBlocksForCall(
-                    $callEntity,
-                    $slackServiceData,
-                    $initialCallEventText,
-                    $contactInfos
-                );
-            } catch (Exception $e) {
-                // Log
-                integrationLog(
-                    'STOP_PROCESSING',
-                    'Failed to create message body',
-                    ['error' => $e->getMessage()]
-                );
-            }
-        }
-
-        try {
-            // Process message management.
-            createOrUpdateCallObjectForSlack(
-                $pdoHandler,
-                $callEntity,
-                $slackTokenInfo->accessToken,
-                $channel,
-                $formattedMsg,
-                'SLACK_QUICKTALK'
-            );
-        } catch (Exception $e) {
-            // Process message failed
-            // Log
-            integrationLog('ERROR_CREATE_OR_UPDATE', '', ['msg' => $formattedMsg]);
-        }
-    }
-    #endregion
     return true;
 }
 
@@ -449,8 +331,7 @@ function processAfterCallEventForSlack(
                 $contactManager,
                 intval($callEntity->firstRingoverUser['team_id']),
                 intval($callEntity->firstRingoverUser['id']),
-                $callEntity->e164CustomerNumber,
-                'SLACK'
+                $callEntity->e164CustomerNumber
             );
 
             $formattedMsg = createSlackBlocksForCall($callEntity, $slackServiceData, $initialCallEventText,
@@ -481,158 +362,6 @@ function processAfterCallEventForSlack(
     return true;
 }
 
-
-function processAfterCallEventForSlackQuicktalk(
-    Call $callEntity,
-    ContactManager $contactManager
-): bool {
-    /** @var UserTokenInfos $slackTokenInfo */
-    $slackTokenInfo = current($callEntity->integrations['SLACK_QUICKTALK']);
-    $slackServiceData = $slackTokenInfo->serviceDataArr;
-
-    // No callObjects found
-    if (empty($callEntity->integrations['SLACK_QUICKTALK']['call_objects'])) {
-        // Log
-        integrationLog(
-            'NO_CALL_OBJECT',
-            'No call object for aftercall process',
-            [
-                'callId' => $callEntity->callId
-            ]
-        );
-        return true;
-    }
-
-    $ringoverNumber = strval($callEntity->ringoverNumber);
-    $customerNumber = strval($callEntity->customerNumber);
-    $ivrNumber = $callEntity->isIVR ? strval($callEntity->ivrNumber) : '';
-
-    // Loop saved callObjects
-    foreach ($callEntity->integrations['SLACK_QUICKTALK']['call_objects'] as $callObject) {
-        /** @var bool $isNbrsEqual caller and callee numbers match thoses in history */
-        if ($callEntity->isIVR) {
-            $isNbrsEqual = (empty($callObject['objectData']['ivrNumber'])
-                    || $ivrNumber === $callObject['objectData']['ivrNumber'])
-                && $customerNumber === $callObject['objectData']['customerNumber'];
-        } else {
-            $isNbrsEqual = $ringoverNumber === $callObject['objectData']['ringoverNumber']
-                && $customerNumber === $callObject['objectData']['customerNumber'];
-        }
-
-        $channel = $callObject['objectData']['channel'] ?? '';
-        $ts = $callObject['objectData']['ts'] ?? '';
-
-        // If not the same number, or status is not right, or no ts. Continue
-        $newStatus = getCallStatusForSlack($callEntity);
-        if (
-            !$isNbrsEqual
-            || !in_array($newStatus, [CallStatus::HANGUP, CallStatus::MISSED, 'voicemail'])
-            || empty($ts)
-        ) {
-            // Log
-            updateCallObjectLog(
-                $channel . '::' . $ts,
-                false,
-                [
-                    'isNbrEqual' => $isNbrsEqual,
-                    'newStatus'  => $newStatus,
-                    'event'      => 'aftercall'
-                ]
-            );
-            continue;
-        }
-
-        //region prepare message updating
-        // Legacy format de texte
-        if (isset($slackServiceData['callEventTexts']['en']['inbound']['hangup']['header'])) {
-            $hasTagsNotes = !empty($callEntity->tags) || !empty($callEntity->comments);
-            $showTagsNotes = isset($slackServiceData['showTagsNotes']) && $slackServiceData['showTagsNotes'];
-
-            if (!$hasTagsNotes) {
-                // Log
-                integrationLog(
-                    'NO_TAGS_NOTES',
-                    'Aftercall does not have tags nor notes',
-                    [
-                        'callId' => $callEntity->callId
-                    ]
-                );
-                return false;
-            }
-
-            if (!$showTagsNotes) {
-                // ShowTagsNotes is disabled
-                // Log
-                integrationLog('STOP_PROCESSING', 'Do not show tags and notes');
-                return false;
-            }
-            $msgHistoryAttachment = legacyCreateSlackBlocksForAfterCall($callEntity, $slackTokenInfo, $slackServiceData,
-                $newStatus, $channel, $ts);
-            if (empty($msgHistoryAttachment)) {
-                // Log
-                integrationLog('STOP_PROCESSING', 'Empty text');
-                return false;
-            }
-
-            $formattedMsg =
-                [
-                    // Texte vide obligatoire
-                    'text'        => '',
-                    'attachments' => [$msgHistoryAttachment]
-
-                ];
-        } // Format général de texte
-        else {
-            $initialCallEventText = createCallEventTextV2($callEntity, $slackServiceData, [], false, 'Slack');
-            $initialCallEventText['body']= json_encode($initialCallEventText['body']);
-
-            // Textes du callEvent sont vides
-            if (empty($initialCallEventText['title']) && empty($initialCallEventText['body'])) {
-                // Log
-                integrationLog(
-                    'STOP_PROCESSING',
-                    'CallEvent text is empty',
-                    ['status' => $callEntity->status]
-                );
-
-                return false;
-            }
-
-            $contactInfos = getContactsForSlack(
-                $contactManager,
-                intval($callEntity->firstRingoverUser['team_id']),
-                intval($callEntity->firstRingoverUser['id']),
-                $callEntity->e164CustomerNumber,
-                'SLACK_QUICKTALK'
-            );
-
-            $formattedMsg = createSlackBlocksForCall($callEntity, $slackServiceData, $initialCallEventText,
-                $contactInfos);
-        }
-        //endregion
-
-        // Update message
-        try {
-            updateSlackMessage($slackTokenInfo->accessToken, $channel, $ts, $formattedMsg);
-            // log
-            updateCallObjectLog($channel . '::' . $ts, true, ['callId' => $callEntity->callId]);
-        } catch (Exception $e) {
-            // log
-            updateCallObjectLog(
-                $channel . '::' . $ts,
-                false,
-                [
-                    'callId' => $callEntity->callId,
-                    'error'  => $e->getMessage(),
-                    'msg'    => $formattedMsg
-                ]
-            );
-            return false;
-        }
-    }
-
-    return true;
-}
 /**
  * @param CommandQueryPDO $pdoHandler
  * @param SMS $smsEntity
@@ -715,8 +444,7 @@ function processSMSEventForSlack(CommandQueryPDO $pdoHandler, SMS $smsEntity, Co
                 $contactManager,
                 intval($smsEntity->teamId),
                 intval($ringoverUserId),
-                $e164CustomerNumber,
-                'SLACK'
+                $e164CustomerNumber
             );
 
             $formattedMsg = createSlackBlocksForSMS($smsEntity, $slackServiceData, $initialSmsEventText, $contactInfos);
@@ -767,8 +495,7 @@ function processSMSEventForSlack(CommandQueryPDO $pdoHandler, SMS $smsEntity, Co
                 $contactManager,
                 intval($smsEntity->teamId),
                 $ringoverUserId,
-                $e164CustomerNumber,
-                'SLACK'
+                $e164CustomerNumber
             );
 
             $formattedMsg = createSlackBlocksForSMS($smsEntity, $slackServiceData, $initialSmsEventText, $contactInfos);
@@ -901,11 +628,10 @@ function getContactsForSlack(
     ContactManager $contactManager,
     int $ringoverUserTeamId,
     int $ringoverUserId,
-    string $e164CustomerNumber,
-    string $integrationServiceName
+    string $e164CustomerNumber
 ): array {
     $externalContact = $contactManager->getSynchronizedContacts($ringoverUserTeamId, $ringoverUserId,
-        ltrim($e164CustomerNumber, '+'), MAX_CONTACTS_TO_SEARCH, $integrationServiceName);
+        ltrim($e164CustomerNumber, '+'), MAX_CONTACTS_TO_SEARCH);
 
     // Aucun contact trouvé, renvoie un contact vide
     if (empty($externalContact)) {
@@ -1065,7 +791,7 @@ function createSlackBlocksForCall(
     $blocks[] = [
         'type'     => 'context',
         'block_id' => 'header',
-        'elements' => createSlackBlockElementHeader($callEntity, $slackServiceData, $contacts, "SlackQuicktalk")
+        'elements' => createSlackBlockElementHeader($callEntity, $slackServiceData, $contacts)
     ];
 
     // Tags
@@ -1310,7 +1036,7 @@ function getHeaderIconForCallSlack(Call $callEntity): ?string
  * @param IntegrationContactIdentity[] $contacts
  * @return array
  */
-function createSlackBlockElementHeader($telecomEntity, array $slackServiceData, array $contacts, string $integrationFolderName = "Slack"): array
+function createSlackBlockElementHeader($telecomEntity, array $slackServiceData, array $contacts): array
 {
     $elements = [];
 
@@ -1334,26 +1060,17 @@ function createSlackBlockElementHeader($telecomEntity, array $slackServiceData, 
             : $telecomEntity->to['number']['format']['e164'];
     }
 
-    $showNumberInNationalFormat = $slackServiceData['showNationalFormat'] ?? false;
-    $nationalCustomerNumber = isset($telecomEntity->customerNumberDetails['national'])
-        ? str_replace(' ', '', $telecomEntity->customerNumberDetails['national'])
-        : $e164CustomerNumber;
-
-    $numberToShow = $showNumberInNationalFormat ? $nationalCustomerNumber : $e164CustomerNumber;
-
     // Un contact trouvé
     if (1 === count($contacts)) {
         $contact = current($contacts);
 
         // Nom et numéro, sans lien
         if (empty($contact->data['socialProfileUrl'])) {
-            $textContact = '*' . $contact->name . ' (' . $numberToShow . ')*';
+            $textContact = '*' . $contact->name . ' (' . $e164CustomerNumber . ')*';
         } // Nom et numéro, avec lien
         else {
-            $textContact = '<' . $contact->data['socialProfileUrl'] . '|*' . $numberToShow . ')*';
+            $textContact = '<' . $contact->data['socialProfileUrl'] . '|*' . $contact->name . '*> *(' . $e164CustomerNumber . ')*';
         }
-    }else{
-        $textContact = '*(' . $numberToShow . ')*';
     }
 
     // Regénérer les textes avec de la bonne info
@@ -1363,14 +1080,14 @@ function createSlackBlockElementHeader($telecomEntity, array $slackServiceData, 
             $slackServiceData,
             ['/:contactHeader/' => $textContact],
             false,
-            $integrationFolderName
+            'Slack'
         );
     } else {
         $callEventText = createSMSEventText(
             $telecomEntity,
             $slackServiceData,
             ['/:contactHeader/' => $textContact],
-            $integrationFolderName
+            'Slack'
         );
     }
 
@@ -1768,8 +1485,7 @@ function createOrUpdateCallObjectForSlack(
     Call $callEntity,
     string $accessToken,
     string $channel,
-    array $formattedMsg,
-    string $serviceName
+    array $formattedMsg
 ) {
     $ringoverNumber = strval($callEntity->ringoverNumber);
     $ivrNumber = $callEntity->isIVR ? strval($callEntity->ivrNumber) : '';
@@ -1780,8 +1496,8 @@ function createOrUpdateCallObjectForSlack(
      * 2. If history does not exist, means it's the first event/message.
      *    Send message and save infos to DB.
      */
-    if (isset($callEntity->integrations[$serviceName]['call_objects']) && 'SLACK_QUICKTALK' != $serviceName) {
-        foreach ($callEntity->integrations[$serviceName]['call_objects'] as $callObject) {
+    if (isset($callEntity->integrations['SLACK']['call_objects'])) {
+        foreach ($callEntity->integrations['SLACK']['call_objects'] as $callObject) {
             $newStatus = getCallStatusForSlack($callEntity);
             $oldStatus = $callObject['objectData']['status'];
 
@@ -1826,7 +1542,7 @@ function createOrUpdateCallObjectForSlack(
                 foreach ($formattedMsg['attachments'][0]['blocks'] as $bk => $block) {
                     if (!isset($block['type']) || !isset($block['id'])) {
                         // Test and debug
-                        integrationLog($serviceName.' DEBUG', 'Empty block type or id', ['block' => $block]);
+                        integrationLog('SLACK DEBUG', 'Empty block type or id', ['block' => $block]);
                     }
                     elseif ('actions' === $block['type'] || 'action' === $block['id']) {
                         $actionBlockElements = $block['elements'];
@@ -1881,7 +1597,7 @@ function createOrUpdateCallObjectForSlack(
                 $callObject['objectData']['status'] = $newStatus;
                 updateIntegrationCallObject(
                     $pdoHandler,
-                    $serviceName,
+                    'SLACK',
                     $callEntity->callId,
                     $callEntity->channelId,
                     $callEntity->teamId,
@@ -1940,7 +1656,7 @@ function createOrUpdateCallObjectForSlack(
             // Save history data
             saveIntegrationCallObject(
                 $pdoHandler,
-                $serviceName,
+                'SLACK',
                 $callEntity->callId,
                 $callEntity->channelId,
                 $callEntity->teamId,
@@ -2065,7 +1781,7 @@ function legacyGetContactsForSlack(
 function legacyCreateSlackSMSEventTextSlack(
     CommandQueryPDO $pdoHandler,
     SMS $smsEntity,
-    $slackServiceData,
+                    $slackServiceData,
     int $ringoverUserId = 0,
     int $ringoverTeamId = 0
 ): array {
@@ -3283,16 +2999,10 @@ function legacyCreateSMSMessageBlocks(
 
 //region Process telecom events
 if (isset($callEntity) && !$callEntity->afterCall) {
-    if('SLACK_QUICKTALK' == $integrationName){
-        return processCallEventForSlackQuickTalk($pdoHandler, $callEntity, $contactManager);
-    }
     return processCallEventForSlack($pdoHandler, $callEntity, $contactManager);
 }
 
 if (isset($callEntity) && $callEntity->afterCall) {
-    if('SLACK_QUICKTALK' == $integrationName){
-        return processAfterCallEventForSlackQuicktalk($callEntity, $contactManager);
-    }
     return processAfterCallEventForSlack($callEntity, $contactManager);
 }
 

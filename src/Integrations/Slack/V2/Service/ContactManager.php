@@ -47,12 +47,12 @@ class ContactManager extends AbstractContactManager
              $phoneNumber,
         int  $limit = 3,
         bool $debugMode = false,
-        string $integrationName = 'SLACK'
+        string $integrationServiceName = 'SLACK'
     ): array {
         // Numbers in search list are int
         $phoneNumber = intval(ltrim($phoneNumber, '+'));
         $response = $this->contactSyncService
-            ->searchContactsByNumbersV4($teamId, $userId, [$phoneNumber], $debugMode,$integrationName );
+            ->searchContactsByNumbersV4($teamId, $userId, [$phoneNumber], $debugMode,$integrationServiceName);
         $contactInfo = $response[$phoneNumber] ?? [];
         $this->logger->contactSearchLog($phoneNumber, !empty($contactInfo), ['source' => 'contacts v4']);
 

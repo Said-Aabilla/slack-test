@@ -8,26 +8,32 @@ use App\Domain\Integration\Integration;
 use App\Domain\Integration\IntegrationContactIdentity;
 use App\Domain\PhoneNumber\CustomerNumberDetails;
 use App\Integrations\Service\AbstractIntegration;
+use App\Intrastructure\Persistence\UserRepository;
 use App\Intrastructure\Service\HttpClient;
 use App\Settings\SettingsInterface;
 use Exception;
 
 class Slack extends AbstractIntegration
 {
-    const API_URL = 'https://slack.com/api';
-    private ContactManager $contactManager;
-    public SlackOAuth2Provider $oauthProvider;
 
-    private const MAX_CONTACTS_TO_SEARCH = 3;
+    protected ContactManager $contactManager;
+    public SlackOAuth2Provider $oauthProvider;
+    protected UserRepository $userRepository;
+    public const API_URL = 'https://slack.com/api';
+    public const MAX_CONTACTS_TO_SEARCH = 3;
 
     public function __construct(
-        HttpClient $httpClient,
-        SettingsInterface $settings,
+        HttpClient                 $httpClient,
+        SettingsInterface          $settings,
         IntegrationLoggerInterface $logger,
-        ContactManager $contactManager
-    ) {
+        ContactManager             $contactManager,
+        UserRepository $userRepository
+
+    )
+    {
         parent::__construct($httpClient, $settings, $logger);
         $this->contactManager = $contactManager;
+        $this->userRepository = $userRepository;
         $this->setSlackOAuth2Provider($httpClient, $logger, $settings);
     }
 
@@ -39,19 +45,26 @@ class Slack extends AbstractIntegration
         return 'SLACK';
     }
 
+    private function setSlackOAuth2Provider(HttpClient $httpClient, IntegrationLoggerInterface $logger, SettingsInterface $settings)
+    {
+        $this->oauthProvider = new SlackOAuth2Provider($httpClient, $logger, $settings);
+    }
+
+
     public function request(
         Integration $integration,
-        string $method,
-        string $endPoint,
-        array $dataToSend = [],
-        array $anonymizedPrams = []
-    ): array {
+        string      $method,
+        string      $endPoint,
+        array       $dataToSend = [],
+        array       $anonymizedPrams = []
+    ): array
+    {
         $httpReturnCode = 1;
-        $headers        = [
+        $headers = [
             'Content-Type:application/json; charset=utf-8',
             'Authorization: Bearer ' . $integration->getAccessToken()
         ];
-        $url            = self::API_URL . '/' . $endPoint;
+        $url = self::API_URL . '/' . $endPoint;
         if ($method === 'GET') {
             $response = $this->httpClient->get(
                 $url,
@@ -79,16 +92,17 @@ class Slack extends AbstractIntegration
         }
         return [
             'http_return_code' => $httpReturnCode,
-            'error'            => $response
+            'error' => $response
         ];
     }
 
     private function post(
         Integration $integration,
-        string $endPoint,
-        array $dataToPost = [],
-        array $anomynizedKey = []
-    ): array {
+        string      $endPoint,
+        array       $dataToPost = [],
+        array       $anomynizedKey = []
+    ): array
+    {
         return $this->request($integration, 'POST', $endPoint, $dataToPost, $anomynizedKey);
     }
 
@@ -105,9 +119,10 @@ class Slack extends AbstractIntegration
 
     public function getSynchronizedContact(
         CustomerNumberDetails $customerNumberDetails,
-        int $teamId,
-        int $userId
-    ): ?IntegrationContactIdentity {
+        int                   $teamId,
+        int                   $userId
+    ): ?IntegrationContactIdentity
+    {
         $externalContact = $this->contactManager->getSynchronizedContacts(
             $teamId,
             $userId,
@@ -115,17 +130,13 @@ class Slack extends AbstractIntegration
             self::MAX_CONTACTS_TO_SEARCH,
             true
         );
+
         if (empty($externalContact)) {
             return null;
         }
-        $contact                           = new IntegrationContactIdentity();
-        $contact->id                       = $externalContact['integration_id'];
-        $contact->name                     = $externalContact['firstname'] . ' ' . $externalContact['lastname'];
-        $contact->nameWithNumber           = $contact->name . ' (' . $customerNumberDetails->e164 . ')';
-        $contact->data['socialService']    = $externalContact['integration_name'] ?? '';
-        $contact->data['socialProfileUrl'] = $externalContact['integration_url'] ?? '';
 
-        return $contact;
+        return $this->mapExternalToIntegrationContactIdentity($externalContact, $customerNumberDetails->e164);
+
     }
 
     /**
@@ -149,7 +160,7 @@ class Slack extends AbstractIntegration
                 $integration->getConfiguration(),
                 $userId,
                 $slackUserId
-        )) {
+            )) {
             return null;
         }
         return $slackUserId;
@@ -165,6 +176,21 @@ class Slack extends AbstractIntegration
                 [
                     'channel' => $channel
                 ]
+            ),
+            ['attachments.0.blocks']
+        );
+    }
+    public function updateSlackMessage(Integration $integration, string $channel,string $ts, array $formattedMessage): array
+    {
+        return $this->post(
+            $integration,
+            'chat.update',
+            array_merge(
+                $formattedMessage,
+                [
+                    'channel' => $channel,
+                    'ts'      => $ts
+                ],
             ),
             ['attachments.0.blocks']
         );
@@ -195,27 +221,181 @@ class Slack extends AbstractIntegration
         return $this->get($integration, 'users.list', $queryParams);
     }
 
+
     /**
-     * Map users Ringover - Slack, on same email address
+     * Lists Slack channels by page.
+     * For listing only public channels use type = public_channel
+     *
+     * @param Integration $integration The integration object containing access token
+     * @param string $cursor Pagination cursor
+     * @param string|null $type Optional channel type filter (e.g., 'public_channel')
+     * @return array [channels[{id: name}], next_cursor]
+     * @throws Exception
+     */
+    public function listSlackChannels(Integration $integration, string $cursor = '', ?string $type = null): array
+    {
+        $params = [
+            'exclude_archived' => true,
+            'limit' => 999
+        ];
+
+        if (!empty($cursor)) {
+            $params['cursor'] = $cursor;
+        }
+
+        if (!empty($type)) {
+            $params['types'] = $type;
+        }
+
+        $response = $this->get($integration, 'conversations.list', $params);
+
+        // Check for errors in the response
+        if (!isset($response['ok']) || $response['ok'] === false) {
+            throw new Exception('SLACK: ' . ($response['error'] ?? 'Error listing channels'),
+                $response['http_return_code'] ?? 500);
+        }
+
+        $result = [
+            'channels' => [],
+            'next_cursor' => $response['response_metadata']['next_cursor'] ?? ''
+        ];
+
+        foreach ($response['channels'] as $channel) {
+            $result['channels'][$channel['id']] = ($channel['is_private'] ? '' : '# ') . $channel['name'];
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * Synchronize ringover and slack users, complete user map.
+     * And save new user mapping list into serviceData
      *
      * @param int $teamId
      * @param string $accessToken
-     * @param array $userMapList value of: ringover_user_to_external['users']
-     * @return array user mapping list
+     * @param array $userMapList
+     * @return array Updated user mapping list
      * @throws Exception
      */
     public function autoMapRingoverSlackUsers(
-        int $teamId,
-        string $accessToken,
-        array $userMapList
-    ): array {
-
-        // TO DO
-        return [];
-    }
-
-    private function setSlackOAuth2Provider(HttpClient $httpClient, IntegrationLoggerInterface $logger, SettingsInterface $settings)
+        int         $teamId,
+        Integration $integration,
+        array       $userMapList
+    ): array
     {
-        $this->oauthProvider = new SlackOAuth2Provider($httpClient, $logger, $settings);
+        // Get Ringover users from team
+        $ringoverUsers = $this->userRepository->getUsersByTeamId($teamId);
+
+        // Get Slack users with pagination
+        $externalUsers = $this->getSlackUsers($integration);
+
+        // Extract mapped user IDs, for Ringover and external
+        $mappedRingoverUsers = [];
+        $mappedExternalUsers = [];
+
+        if (!empty($userMapList)) {
+            foreach ($userMapList as $ringoverUserId => $externalInfo) {
+                $externalUserId = $externalInfo['externalId'] ?? '';
+                if (empty($externalUserId)) {
+                    continue;
+                }
+                $mappedRingoverUsers[] = $ringoverUserId;
+                $mappedExternalUsers[] = $externalUserId;
+            }
+        }
+
+        // Prepare available users for Ringover and external
+        $availableRingoverUsers = [];
+        $availableExternalUsers = [];
+
+        // Skip already mapped users and form arrays with email and id
+        foreach ($ringoverUsers as $rUser) {
+            if (in_array($rUser['id'], $mappedRingoverUsers)) {
+                continue;
+            }
+            $availableRingoverUsers[$rUser['email']] = $rUser['id'];
+        }
+
+        foreach ($externalUsers as $eUser) {
+            if (in_array($eUser['id'], $mappedExternalUsers)) {
+                continue;
+            }
+            $availableExternalUsers[$eUser['email']] = $eUser['id'];
+        }
+
+        // Return early if no available Ringover users to match
+        if (empty($availableRingoverUsers)) {
+            return $userMapList;
+        }
+
+        // Loop available ringover users and map with same email addresses
+        foreach ($availableRingoverUsers as $email => $id) {
+            // If external user has the same email address
+            if (isset($availableExternalUsers[$email])) {
+                // Insert new user mapping pairs
+                $userMapList[$id] = [
+                    'externalId' => $availableExternalUsers[$email],
+                    'enabled' => true
+                ];
+            }
+        }
+
+        return $userMapList;
     }
+
+
+    public function getSlackUsers(Integration $integration): array
+    {
+        $externalUsers = [];
+        $cursor = '';
+        do {
+            $rawSlackUsers = $this->getUserList($integration, $cursor);
+            $cursor = $rawSlackUsers['response_metadata']['next_cursor'] ?? '';
+
+            // Extract only needed members data
+            foreach ($rawSlackUsers['members'] ?? [] as $member) {
+                if ($member['deleted'] || $member['is_bot'] || !isset($member['profile']['email'])) {
+                    continue;
+                }
+
+                $externalUsers[] = [
+                    'id' => $member['id'],
+                    'email' => $member['profile']['email'],
+                    'fullName' => $member['profile']['real_name'],
+                    'photo' => $member['profile']['image_32']
+                ];
+            }
+        } while (!empty($cursor));
+
+
+        return $externalUsers;
+    }
+
+    public function mapExternalToIntegrationContactIdentity(array $externalContact, string $e164CustomerNumber): IntegrationContactIdentity
+    {
+
+        $contact = new IntegrationContactIdentity();
+        $contact->id = $externalContact['integration_id'];
+        $contact->name = $externalContact['firstname'] . ' ' . $externalContact['lastname'];
+        $contact->nameWithNumber = $contact->name . ' (' . $e164CustomerNumber . ')';
+        $contact->data['socialService'] = $externalContact['integration_name'] ?? '';
+        $contact->data['socialProfileUrl'] = $externalContact['integration_url'] ?? '';
+
+        return $contact;
+    }
+
+    public function emptyIntegrationContactIdentity(string $e164CustomerNumber): IntegrationContactIdentity
+    {
+        $contact = new IntegrationContactIdentity();
+        $contact->nameWithNumber = $e164CustomerNumber;
+        $contact->data =
+            [
+                'socialService'    => '',
+                'socialProfileUrl' => ''
+            ];
+        return $contact;
+    }
+
+
 }
